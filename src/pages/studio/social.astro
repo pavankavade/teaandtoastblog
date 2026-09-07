@@ -47,13 +47,59 @@ const recipesData = allRecipes.map((r) => {
   title="Internal Social Media Studio | Tea & Toast"
   description="Internal content automation tool to generate tailored, high-engagement posts for X (Twitter), Facebook, and Instagram."
 >
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
+  <!-- Strictly tell all crawlers to never index this page -->
+  <meta name="robots" content="noindex, nofollow" slot="head" />
+
+  <!-- PASSCODE GATE (Rendered by default until authenticated) -->
+  <div id="studio-auth-screen" class="max-w-md mx-auto my-20 px-4">
+    <div class="bg-white p-8 rounded-3xl border border-stone-200 shadow-xl text-center space-y-5">
+      <div class="w-16 h-16 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center text-3xl mx-auto shadow-inner">
+        🔒
+      </div>
+      <div class="space-y-1">
+        <span class="text-[10px] uppercase font-bold tracking-widest text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full">
+          Restricted Creator Tool
+        </span>
+        <h1 class="font-serif text-2xl font-bold text-stone-900 mt-2">
+          Creator Studio Lock
+        </h1>
+        <p class="text-xs text-stone-500">
+          Enter your creator PIN to access social automation tools.
+        </p>
+      </div>
+
+      <form id="studio-auth-form" class="space-y-3 pt-2">
+        <input
+          type="password"
+          id="studio-passkey-input"
+          placeholder="Enter studio passkey..."
+          class="w-full text-center text-sm tracking-widest px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
+          required
+        />
+        <p id="auth-error-msg" class="text-xs text-red-600 hidden font-medium">
+          Incorrect passkey. Please try again.
+        </p>
+        <button
+          type="submit"
+          class="w-full py-3 bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs rounded-xl shadow transition"
+        >
+          Unlock Studio →
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN STUDIO INTERFACE (Hidden until unlocked) -->
+  <div id="studio-main-content" class="hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
     <!-- Header -->
     <div class="border-b border-stone-200 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2">
           <span class="text-xs uppercase tracking-widest font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
             Internal Marketing Tool
+          </span>
+          <span class="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span>●</span> Authenticated
           </span>
         </div>
         <h1 class="font-serif text-3xl sm:text-4xl font-bold text-stone-900 mt-2">
@@ -64,22 +110,29 @@ const recipesData = allRecipes.map((r) => {
         </p>
       </div>
 
-      <!-- Quick Social Profile Links -->
-      <div class="flex items-center gap-2 text-xs">
+      <!-- Quick Social Profile Links & Lock Button -->
+      <div class="flex flex-wrap items-center gap-2 text-xs">
         <a
           href="https://x.com/teaandtoastblog"
           target="_blank"
           class="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 font-semibold text-stone-700 transition"
         >
-          Open @teaandtoastblog on X ↗
+          Open X ↗
         </a>
         <a
           href="https://www.facebook.com/profile.php?id=100063631472993"
           target="_blank"
           class="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 font-semibold text-stone-700 transition"
         >
-          Open Facebook Page ↗
+          Open Facebook ↗
         </a>
+        <button
+          id="lock-studio-btn"
+          type="button"
+          class="px-3 py-1.5 rounded-lg bg-stone-200 hover:bg-stone-300 font-semibold text-stone-800 transition flex items-center gap-1"
+        >
+          <span>🔒</span> Lock
+        </button>
       </div>
     </div>
 
@@ -250,6 +303,50 @@ const recipesData = allRecipes.map((r) => {
 </BaseLayout>
 
 <script is:inline define:vars={{ recipesData }}>
+  const MASTER_PIN = 'toast2026';
+  const AUTH_KEY = 'tt_studio_authenticated';
+
+  const authScreen = document.getElementById('studio-auth-screen');
+  const mainContent = document.getElementById('studio-main-content');
+  const authForm = document.getElementById('studio-auth-form');
+  const passkeyInput = document.getElementById('studio-passkey-input');
+  const authErrorMsg = document.getElementById('auth-error-msg');
+  const lockBtn = document.getElementById('lock-studio-btn');
+
+  function checkAuth() {
+    if (sessionStorage.getItem(AUTH_KEY) === 'true') {
+      authScreen.classList.add('hidden');
+      mainContent.classList.remove('hidden');
+      if (recipesData.length > 0) {
+        updateRecipe(recipesData[0].id);
+      }
+    } else {
+      authScreen.classList.remove('hidden');
+      mainContent.classList.add('hidden');
+    }
+  }
+
+  authForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (passkeyInput.value.trim() === MASTER_PIN) {
+      sessionStorage.setItem(AUTH_KEY, 'true');
+      authErrorMsg.classList.add('hidden');
+      checkAuth();
+    } else {
+      authErrorMsg.classList.remove('hidden');
+      passkeyInput.focus();
+    }
+  });
+
+  if (lockBtn) {
+    lockBtn.addEventListener('click', () => {
+      sessionStorage.removeItem(AUTH_KEY);
+      passkeyInput.value = '';
+      checkAuth();
+    });
+  }
+
+  // Social Studio UI bindings
   const selector = document.getElementById('recipe-selector');
   const xTextArea = document.getElementById('x-text-area');
   const fbTextArea = document.getElementById('fb-text-area');
@@ -328,8 +425,6 @@ const recipesData = allRecipes.map((r) => {
   fbCopyBtn.addEventListener('click', () => copyToClipboard(fbTextArea, fbCopyBtn));
   igCopyBtn.addEventListener('click', () => copyToClipboard(igTextArea, igCopyBtn));
 
-  // Initialize with first recipe
-  if (recipesData.length > 0) {
-    updateRecipe(recipesData[0].id);
-  }
+  // Initialize
+  checkAuth();
 </script>
