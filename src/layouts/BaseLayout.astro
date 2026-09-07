@@ -23,7 +23,7 @@ const {
   adSenseClientId,
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://teaandtoastblog.com');
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://teaandtoastblog.pages.dev');
 const formattedTitle = title.includes('Tea & Toast') ? title : `${title} | Tea & Toast`;
 ---
 

@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://teaandtoastblog.com',
+  site: 'https://teaandtoastblog.pages.dev',
   integrations: [
     tailwind({
       applyBaseStyles: false,
