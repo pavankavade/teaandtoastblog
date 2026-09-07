@@ -1,0 +1,75 @@
+---
+interface Props {
+  videoUrl?: string;
+  title: string;
+}
+
+const { videoUrl, title } = Astro.props;
+
+if (!videoUrl) return null;
+
+// Determine video provider
+const isYouTube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
+const isInstagram = videoUrl.includes('instagram.com');
+const isDirectVideo = videoUrl.endsWith('.mp4') || videoUrl.endsWith('.webm');
+
+let embedSrc = '';
+if (isYouTube) {
+  if (videoUrl.includes('shorts/')) {
+    const id = videoUrl.split('shorts/')[1]?.split('?')[0];
+    embedSrc = `https://www.youtube.com/embed/${id}`;
+  } else if (videoUrl.includes('watch?v=')) {
+    const id = videoUrl.split('watch?v=')[1]?.split('&')[0];
+    embedSrc = `https://www.youtube.com/embed/${id}`;
+  } else if (videoUrl.includes('youtu.be/')) {
+    const id = videoUrl.split('youtu.be/')[1]?.split('?')[0];
+    embedSrc = `https://www.youtube.com/embed/${id}`;
+  }
+}
+---
+
+<div class="video-embed-wrapper my-8 bg-stone-900 rounded-2xl overflow-hidden shadow-lg border border-stone-800">
+  <div class="p-3 bg-stone-800 text-stone-200 text-xs font-semibold flex items-center justify-between">
+    <span class="flex items-center gap-1.5">
+      🎥 <span>Watch Step-by-Step Short Tutorial</span>
+    </span>
+    <span class="text-stone-400 font-normal">Reel / Video</span>
+  </div>
+
+  <div class="relative w-full flex justify-center bg-black">
+    {isYouTube && embedSrc ? (
+      <div class="w-full aspect-video md:max-w-xl">
+        <iframe
+          src={embedSrc}
+          title={title}
+          class="w-full h-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+    ) : isDirectVideo ? (
+      <video
+        src={videoUrl}
+        controls
+        playsinline
+        preload="metadata"
+        class="max-h-[500px] w-auto mx-auto rounded-b-xl"
+      >
+        Your browser does not support the video tag.
+      </video>
+    ) : isInstagram ? (
+      <div class="p-6 text-center text-white space-y-3">
+        <p class="text-sm font-medium">Watch this recipe in action on Instagram Reels:</p>
+        <a
+          href={videoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold text-xs px-4 py-2 rounded-full transition shadow"
+        >
+          <span>Watch Reel on @teaandtoastblog</span>
+          <span>→</span>
+        </a>
+      </div>
+    ) : null}
+  </div>
+</div>

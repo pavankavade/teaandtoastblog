@@ -1,0 +1,172 @@
+---
+// Interactive Tea & Toast pairing logic implemented in pure zero-dependency client JS
+---
+
+<section id="tea-toast-pairing" class="my-16 bg-gradient-to-br from-amber-50/70 via-stone-50 to-orange-50/40 p-6 sm:p-10 rounded-3xl border border-amber-200/70 shadow-sm">
+  <div class="max-w-3xl mx-auto text-center space-y-3">
+    <span class="text-xs uppercase tracking-widest font-bold text-amber-800 bg-amber-100/80 px-3 py-1 rounded-full">
+      ✨ Interactive AI Sommelier
+    </span>
+    <h2 class="text-2xl sm:text-4xl font-serif font-bold text-stone-900">
+      Find Your Perfect Tea & Toast Pairing
+    </h2>
+    <p class="text-sm text-stone-600 max-w-xl mx-auto">
+      Tell us what bread and toppings you are craving, and we’ll match you with the ideal loose-leaf or herbal brew to balance flavor notes and richness.
+    </p>
+  </div>
+
+  <div class="mt-8 max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Bread Selection -->
+    <div>
+      <label for="bread-select" class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+        1. Choose Your Bread
+      </label>
+      <select
+        id="bread-select"
+        class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-none shadow-sm"
+      >
+        <option value="sourdough">Artisanal Sourdough (Tangy & Crisp)</option>
+        <option value="brioche">Golden French Brioche (Rich & Buttery)</option>
+        <option value="shokupan">Japanese Milk Bread (Cloud-Soft & Sweet)</option>
+        <option value="rye">Hearty Seeded Rye (Earthy & Robust)</option>
+        <option value="english-muffin">English Muffin (Nooks & Crannies)</option>
+      </select>
+    </div>
+
+    <!-- Topping Selection -->
+    <div>
+      <label for="topping-select" class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+        2. Choose Your Topping
+      </label>
+      <select
+        id="topping-select"
+        class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-amber-500 focus:outline-none shadow-sm"
+      >
+        <option value="avocado">Smashed Avocado, Chili Flakes & Lemon</option>
+        <option value="ricotta-honey">Whipped Ricotta & Hot Honey / Figs</option>
+        <option value="salmon">Smoked Salmon & Herbed Cream Cheese</option>
+        <option value="butter-jam">Cultured Butter & Strawberry/Raspberry Jam</option>
+        <option value="nut-butter">Almond Butter, Sliced Bananas & Cinnamon</option>
+        <option value="poached-egg">Garlic Butter, Wilted Spinach & Poached Egg</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="mt-6 text-center">
+    <button
+      id="pair-btn"
+      type="button"
+      class="inline-flex items-center gap-2 bg-amber-800 hover:bg-amber-900 text-amber-50 font-semibold text-sm px-6 py-3 rounded-xl shadow transition duration-200"
+    >
+      <span>Find The Match</span>
+      <span>☕</span>
+    </button>
+  </div>
+
+  <!-- Result Box -->
+  <div
+    id="pairing-result"
+    class="mt-8 max-w-2xl mx-auto bg-white border border-amber-300/80 rounded-2xl p-6 shadow-sm transition-all duration-300"
+  >
+    <div class="flex items-start gap-4">
+      <div class="text-4xl p-3 bg-amber-50 rounded-2xl border border-amber-200" id="result-icon">
+        🫖
+      </div>
+      <div class="flex-1 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs uppercase tracking-wider font-bold text-amber-700">Sommelier Recommendation</span>
+          <span class="text-xs font-semibold px-2 py-0.5 bg-stone-100 rounded text-stone-600" id="result-steep">95°C • 3-4 mins</span>
+        </div>
+        <h3 class="font-serif text-xl font-bold text-stone-900" id="result-title">
+          Bergamot Earl Grey with Lemon
+        </h3>
+        <p class="text-sm text-stone-600 leading-relaxed" id="result-desc">
+          The bright citrus bergamot oils cut cleanly through the rich avocado fats and toasted sourdough tang, cleansing the palate after every crunch.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  const pairingsData = {
+    'sourdough+avocado': {
+      title: 'Bergamot Earl Grey with Lemon Twist',
+      desc: 'The vibrant citrus oils of bergamot effortlessly slice through the creamy avocado richness and harmonize with the tang of natural sourdough fermentation.',
+      steep: '95°C • 3-4 mins',
+      icon: '🍋',
+    },
+    'sourdough+salmon': {
+      title: 'First Flush Darjeeling (Black Tea)',
+      desc: 'Known as the champagne of teas, muscatel grape notes and crisp astringency cut the smoke and richness of salmon without overpowering delicate herbed cheese.',
+      steep: '85°C • 3 mins',
+      icon: '🥂',
+    },
+    'brioche+ricotta-honey': {
+      title: 'Jasmine Pearl Green Tea',
+      desc: 'Fragrant floral jasmine highlights the floral sweetness of honey, while delicate green tea tannins keep the whipped dairy from tasting overly heavy.',
+      steep: '75°C • 2-3 mins',
+      icon: '🌸',
+    },
+    'brioche+butter-jam': {
+      title: 'Royal English Breakfast with Splash of Oat Milk',
+      desc: 'A robust, malty cup provides the classic British contrast to warm, buttery brioche and sweet berry preserves.',
+      steep: '100°C • 4-5 mins',
+      icon: '🫖',
+    },
+    'shokupan+butter-jam': {
+      title: 'Roasted Japanese Genmaicha (Green Tea & Toasted Rice)',
+      desc: 'The nutty, popcorn-like warmth of toasted brown rice echoes the golden edges of milk bread, creating ultimate comforting warmth.',
+      steep: '80°C • 2 mins',
+      icon: '🌾',
+    },
+    'shokupan+ricotta-honey': {
+      title: 'Silver Needle White Tea',
+      desc: 'Delicate, velvety white tea leaves preserve the cloud-soft texture of Japanese shokupan and allow subtle honey sweetness to shine.',
+      steep: '75°C • 4 mins',
+      icon: '🍃',
+    },
+    'rye+poached-egg': {
+      title: 'Smoky Lapsang Souchong or Spiced Masala Chai',
+      desc: 'The deep, earthy complexity of rye bread and runny yolks needs a bold partner. Spiced chai or pine-smoked tea creates an unforgettable savory breakfast.',
+      steep: '100°C • 5 mins',
+      icon: '🪵',
+    },
+    'english-muffin+nut-butter': {
+      title: 'Ceylon Cinnamon Rooibos (Caffeine-Free)',
+      desc: 'Naturally sweet red rooibos infused with warming cinnamon brings out the roasted nuttiness of almond butter across crisp crannies.',
+      steep: '100°C • 5-6 mins',
+      icon: '🌰',
+    },
+  };
+
+  const defaultPairing = {
+    title: 'Golden Assam Irish Breakfast Tea',
+    desc: 'A rich, full-bodied black tea that brings brisk warmth and pairs cleanly with both savory crunch and sweet breakfast toppings.',
+    steep: '98°C • 4 mins',
+    icon: '🫖',
+  };
+
+  const breadSelect = document.getElementById('bread-select');
+  const toppingSelect = document.getElementById('topping-select');
+  const pairBtn = document.getElementById('pair-btn');
+  const resultTitle = document.getElementById('result-title');
+  const resultDesc = document.getElementById('result-desc');
+  const resultSteep = document.getElementById('result-steep');
+  const resultIcon = document.getElementById('result-icon');
+
+  function updatePairing() {
+    const key = `${breadSelect.value}+${toppingSelect.value}`;
+    const pair = pairingsData[key] || defaultPairing;
+    resultTitle.textContent = pair.title;
+    resultDesc.textContent = pair.desc;
+    resultSteep.textContent = pair.steep;
+    resultIcon.textContent = pair.icon;
+  }
+
+  if (pairBtn) {
+    pairBtn.addEventListener('click', updatePairing);
+    breadSelect.addEventListener('change', updatePairing);
+    toppingSelect.addEventListener('change', updatePairing);
+  }
+</script>

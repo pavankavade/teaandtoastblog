@@ -1,0 +1,47 @@
+---
+interface Props {
+  slotType?: 'leaderboard' | 'in-article' | 'sidebar' | 'sticky-bottom';
+  adSlotId?: string;
+  adClientId?: string;
+  className?: string;
+}
+
+const {
+  slotType = 'in-article',
+  adSlotId = '',
+  adClientId = 'ca-pub-XXXXXXXXXXXXXXXX', // Replace with user's AdSense ID once approved
+  className = '',
+} = Astro.props;
+
+const isProd = import.meta.env.PROD && adSlotId;
+
+const dimensions = {
+  'leaderboard': 'min-h-[90px] max-w-[728px] my-6',
+  'in-article': 'min-h-[250px] max-w-[336px] md:max-w-[728px] my-8',
+  'sidebar': 'min-h-[600px] max-w-[300px]',
+  'sticky-bottom': 'min-h-[60px] w-full',
+}[slotType];
+---
+
+<div class={`ad-container mx-auto flex flex-col items-center justify-center overflow-hidden ${dimensions} ${className} hide-on-print`}>
+  {isProd ? (
+    <ins
+      class="adsbygoogle block text-center w-full"
+      style="display:block"
+      data-ad-client={adClientId}
+      data-ad-slot={adSlotId}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    ></ins>
+    <script is:inline>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  ) : (
+    <div class="w-full h-full min-h-[90px] border border-dashed border-stone-300 bg-stone-50/70 rounded-lg flex flex-col items-center justify-center p-4 text-center">
+      <span class="text-[10px] tracking-widest uppercase font-semibold text-stone-400">Advertisement</span>
+      <p class="text-xs text-stone-500 mt-1">
+        Ad Placement ({slotType}) • <span class="text-amber-700 font-medium">Ready for Google AdSense</span>
+      </p>
+    </div>
+  )}
+</div>

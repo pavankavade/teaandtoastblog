@@ -1,0 +1,370 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import AdSlot from '../components/AdSlot.astro';
+import VideoEmbed from '../components/VideoEmbed.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  recipe: CollectionEntry<'recipes'>;
+}
+
+const { recipe } = Astro.props;
+const data = recipe.data;
+
+// Parse ISO 8601 duration strings for schema (e.g., "15 mins" -> "PT15M")
+function toISODuration(timeStr: string): string {
+  const match = timeStr.match(/(\d+)/);
+  if (!match) return 'PT15M';
+  return `PT${match[1]}M`;
+}
+
+const prepDuration = toISODuration(data.prepTime);
+const cookDuration = toISODuration(data.cookTime);
+const totalDuration = toISODuration(data.totalTime);
+
+// Format structured schema for Google Recipe Rich Snippets
+const recipeSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Recipe',
+  name: data.title,
+  image: [data.heroImage],
+  author: {
+    '@type': 'Person',
+    name: data.author,
+  },
+  datePublished: data.pubDate.toISOString(),
+  description: data.description,
+  prepTime: prepDuration,
+  cookTime: cookDuration,
+  totalTime: totalDuration,
+  recipeYield: data.yield,
+  recipeCategory: data.category,
+  keywords: data.tags.join(', '),
+  nutrition: data.nutrition?.calories
+    ? {
+        '@type': 'NutritionInformation',
+        calories: `${data.nutrition.calories} calories`,
+        proteinContent: data.nutrition.protein,
+        fatContent: data.nutrition.fat,
+        carbohydrateContent: data.nutrition.carbs,
+      }
+    : undefined,
+  recipeIngredient: data.ingredients.map((ing) =>
+    `${ing.amount} ${ing.unit || ''} ${ing.name}${ing.notes ? ` (${ing.notes})` : ''}`.trim()
+  ),
+  recipeInstructions: data.instructions.map((step) => ({
+    '@type': 'HowToStep',
+    name: step.title || `Step ${step.step}`,
+    text: step.instruction,
+    position: step.step,
+  })),
+};
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  image={data.heroImage}
+  article={true}
+  pubDate={data.pubDate}
+  author={data.author}
+>
+  <!-- Schema.org Recipe JSON-LD injected into head -->
+  <script type="application/ld+json" set:html={JSON.stringify(recipeSchema)} slot="head" />
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center space-x-2 text-xs text-stone-500 mb-6 hide-on-print">
+      <a href="/" class="hover:text-amber-800">Home</a>
+      <span>/</span>
+      <a href="/recipes" class="hover:text-amber-800">Recipes</a>
+      <span>/</span>
+      <a href={`/recipes?category=${encodeURIComponent(data.category)}`} class="hover:text-amber-800">
+        {data.category}
+      </a>
+      <span>/</span>
+      <span class="text-stone-800 font-medium truncate">{data.title}</span>
+    </nav>
+
+    <!-- Top Leaderboard Ad Slot -->
+    <AdSlot slotType="leaderboard" />
+
+    <!-- Article Header -->
+    <header class="space-y-4 text-center max-w-3xl mx-auto">
+      <span class="inline-block px-3 py-1 bg-amber-100/80 text-amber-900 rounded-full text-xs font-bold uppercase tracking-wider">
+        {data.category}
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-serif font-bold text-stone-900 leading-tight">
+        {data.title}
+      </h1>
+      <p class="text-base sm:text-lg text-stone-600 leading-relaxed">
+        {data.description}
+      </p>
+
+      <!-- Meta info: Author, Date, Quick Actions -->
+      <div class="pt-2 pb-4 flex flex-wrap items-center justify-center gap-4 text-xs text-stone-500 border-y border-stone-200/70">
+        <span>By <strong class="text-stone-800">{data.author}</strong></span>
+        <span>•</span>
+        <time datetime={data.pubDate.toISOString()}>
+          {data.pubDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </time>
+        <span>•</span>
+        <span>⏱️ {data.totalTime}</span>
+        <span>•</span>
+        <span>📊 {data.difficulty}</span>
+      </div>
+
+      <!-- Quick Action Buttons: Jump to Recipe & Print -->
+      <div class="flex items-center justify-center gap-3 pt-2 hide-on-print">
+        <a
+          href="#recipe-card"
+          class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-800 text-white rounded-full text-xs font-semibold hover:bg-amber-900 shadow-sm transition"
+        >
+          <span>Jump to Recipe</span>
+          <span>↓</span>
+        </a>
+        <button
+          type="button"
+          id="print-recipe-btn"
+          class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-stone-300 text-stone-700 rounded-full text-xs font-semibold hover:bg-stone-50 shadow-sm transition"
+        >
+          <span>🖨️ Print Recipe</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Featured Hero Image -->
+    <div class="mt-8 rounded-3xl overflow-hidden shadow-sm aspect-[16/9] sm:aspect-[21/9] bg-stone-100">
+      <img
+        src={data.heroImage}
+        alt={data.title}
+        class="w-full h-full object-cover"
+        loading="eager"
+      />
+    </div>
+
+    <!-- Optional Video Embed -->
+    {data.videoUrl && (
+      <VideoEmbed videoUrl={data.videoUrl} title={data.title} />
+    )}
+
+    <!-- Editorial / Story Content Slot -->
+    <div class="mt-10 prose prose-stone max-w-none prose-headings:font-serif prose-a:text-amber-800 prose-img:rounded-2xl">
+      <slot />
+    </div>
+
+    <!-- Mid-Content Ad Placement -->
+    <AdSlot slotType="in-article" />
+
+    <!-- Tea Pairing Spotlight Box -->
+    {data.teaPairing && (
+      <div class="my-10 bg-amber-50/70 border border-amber-200/80 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-5 shadow-sm">
+        <div class="text-4xl p-3.5 bg-amber-100 rounded-2xl border border-amber-300/60">
+          🍵
+        </div>
+        <div class="space-y-2 flex-1">
+          <span class="text-xs uppercase tracking-widest font-bold text-amber-800">Perfect Tea Pairing</span>
+          <h3 class="font-serif text-2xl font-bold text-stone-900">
+            {data.teaPairing.teaName}
+          </h3>
+          <p class="text-sm text-stone-700 leading-relaxed">
+            {data.teaPairing.description}
+          </p>
+          {data.teaPairing.brewingNotes && (
+            <p class="text-xs font-medium text-amber-900 bg-amber-100/60 px-3 py-1.5 rounded-lg inline-block mt-2">
+              💡 Brewing Guide: {data.teaPairing.brewingNotes}
+            </p>
+          )}
+        </div>
+      </div>
+    )}
+
+    <!-- THE PRINTABLE RECIPE CARD -->
+    <div
+      id="recipe-card"
+      class="printable-recipe mt-12 bg-white rounded-3xl border-2 border-amber-200/80 p-6 sm:p-10 shadow-lg"
+    >
+      <!-- Card Header -->
+      <div class="border-b border-stone-200 pb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-amber-800 font-bold text-xs uppercase tracking-widest">
+              <span>🍞 Tea & Toast Signature Recipe</span>
+            </div>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 mt-1">
+              {data.title}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onclick="window.print()"
+            class="hide-on-print self-start sm:self-auto px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
+          >
+            <span>🖨️ Print</span>
+          </button>
+        </div>
+
+        <!-- Times & Servings Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-stone-100 text-center">
+          <div class="bg-stone-50 rounded-xl p-3">
+            <span class="block text-[11px] uppercase tracking-wider text-stone-500 font-medium">Prep Time</span>
+            <span class="text-sm font-bold text-stone-800">{data.prepTime}</span>
+          </div>
+          <div class="bg-stone-50 rounded-xl p-3">
+            <span class="block text-[11px] uppercase tracking-wider text-stone-500 font-medium">Cook Time</span>
+            <span class="text-sm font-bold text-stone-800">{data.cookTime}</span>
+          </div>
+          <div class="bg-stone-50 rounded-xl p-3">
+            <span class="block text-[11px] uppercase tracking-wider text-stone-500 font-medium">Total Time</span>
+            <span class="text-sm font-bold text-stone-800">{data.totalTime}</span>
+          </div>
+          <div class="bg-stone-50 rounded-xl p-3">
+            <span class="block text-[11px] uppercase tracking-wider text-stone-500 font-medium">Servings</span>
+            <span class="text-sm font-bold text-stone-800" id="yield-display">{data.yield}</span>
+          </div>
+        </div>
+
+        <!-- Interactive Servings Scaler -->
+        <div class="mt-4 flex items-center justify-between text-xs text-stone-600 hide-on-print">
+          <span class="font-medium">Adjust Servings:</span>
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              class="scale-btn px-2.5 py-1 rounded bg-amber-800 text-white font-bold"
+              data-scale="1"
+            >1x</button>
+            <button
+              type="button"
+              class="scale-btn px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 font-bold"
+              data-scale="2"
+            >2x</button>
+            <button
+              type="button"
+              class="scale-btn px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 font-bold"
+              data-scale="3"
+            >3x</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-Column Ingredients & Instructions -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+        <!-- Ingredients Column (1/3) -->
+        <div class="md:col-span-1 space-y-4">
+          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-200 pb-2">
+            Ingredients
+          </h3>
+          <ul class="space-y-2.5 text-sm" id="ingredients-list">
+            {data.ingredients.map((ing) => (
+              <li class="flex items-start gap-2.5 group cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  class="mt-1 h-4 w-4 rounded border-stone-300 text-amber-800 focus:ring-amber-500 cursor-pointer"
+                />
+                <span class="text-stone-700 leading-snug">
+                  <strong class="font-semibold text-stone-900 ing-amount" data-base={ing.amount}>
+                    {ing.amount}
+                  </strong>{' '}
+                  {ing.unit && <span>{ing.unit} </span>}
+                  <span>{ing.name}</span>
+                  {ing.notes && <em class="text-stone-500 text-xs block">{ing.notes}</em>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- Instructions Column (2/3) -->
+        <div class="md:col-span-2 space-y-4">
+          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-200 pb-2">
+            Instructions
+          </h3>
+          <ol class="space-y-5">
+            {data.instructions.map((step) => (
+              <li class="flex items-start gap-4">
+                <span class="flex-shrink-0 w-7 h-7 rounded-full bg-amber-800 text-white flex items-center justify-center font-bold text-xs">
+                  {step.step}
+                </span>
+                <div class="flex-1 space-y-1">
+                  {step.title && (
+                    <h4 class="font-bold text-stone-900 text-sm">{step.title}</h4>
+                  )}
+                  <p class="text-sm text-stone-700 leading-relaxed">
+                    {step.instruction}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+
+      <!-- Pro-Tips / Troubleshooting Box -->
+      {data.tips && data.tips.length > 0 && (
+        <div class="mt-8 pt-6 border-t border-stone-200 bg-amber-50/50 -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 p-6 sm:p-10 rounded-b-3xl">
+          <h4 class="font-serif text-lg font-bold text-stone-900 flex items-center gap-2">
+            <span>💡</span> Pro-Tips for Perfect Results
+          </h4>
+          <ul class="mt-3 space-y-2 text-xs sm:text-sm text-stone-700 list-disc list-inside">
+            {data.tips.map((tip) => (
+              <li class="leading-relaxed">{tip}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+
+    <!-- Nutrition Facts (if provided) -->
+    {data.nutrition && (
+      <div class="mt-8 bg-stone-50 border border-stone-200 rounded-2xl p-4 text-xs text-stone-600 flex flex-wrap items-center justify-between gap-4">
+        <span class="font-bold uppercase tracking-wider text-stone-700">Estimated Nutrition (Per Serving):</span>
+        <div class="flex items-center gap-4 font-medium">
+          {data.nutrition.calories && <span>Calories: <strong>{data.nutrition.calories} kcal</strong></span>}
+          {data.nutrition.protein && <span>Protein: <strong>{data.nutrition.protein}</strong></span>}
+          {data.nutrition.fat && <span>Fat: <strong>{data.nutrition.fat}</strong></span>}
+          {data.nutrition.carbs && <span>Carbs: <strong>{data.nutrition.carbs}</strong></span>}
+        </div>
+      </div>
+    )}
+
+    <!-- Bottom Ad Slot -->
+    <AdSlot slotType="in-article" />
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  // Print button hook
+  const printBtn = document.getElementById('print-recipe-btn');
+  if (printBtn) {
+    printBtn.addEventListener('click', () => window.print());
+  }
+
+  // Interactive Serving Scaler
+  const scaleBtns = document.querySelectorAll('.scale-btn');
+  const amountNodes = document.querySelectorAll('.ing-amount');
+
+  scaleBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      scaleBtns.forEach((b) => {
+        b.classList.remove('bg-amber-800', 'text-white');
+        b.classList.add('bg-stone-100', 'text-stone-700');
+      });
+      btn.classList.remove('bg-stone-100', 'text-stone-700');
+      btn.classList.add('bg-amber-800', 'text-white');
+
+      const scale = parseFloat(btn.getAttribute('data-scale') || '1');
+      amountNodes.forEach((node) => {
+        const base = node.getAttribute('data-base');
+        if (!base) return;
+
+        // Attempt fractional or decimal multiplier
+        const num = parseFloat(base);
+        if (!isNaN(num)) {
+          const scaled = num * scale;
+          // Format nicely (e.g. avoid 1.0000000002)
+          node.textContent = Number.isInteger(scaled) ? scaled.toString() : scaled.toFixed(1);
+        }
+      });
+    });
+  });
+</script>

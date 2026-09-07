@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="About Tea & Toast | Our Story & Culinary Philosophy"
+  description="Learn about the origin of Tea & Toast, our passion for artisanal breads, homemade spreads, and the slow ritual of brewing loose-leaf tea."
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-10">
+    <!-- Header -->
+    <div class="text-center space-y-3">
+      <span class="text-xs uppercase tracking-widest font-bold text-amber-800 bg-amber-100/80 px-3 py-1 rounded-full">
+        Behind the Crust & Cup
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-serif font-bold text-stone-900">
+        Our Story: Savoring Life One Slice at a Time
+      </h1>
+      <p class="text-stone-600 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+        What started in 2020 as a personal passion project celebrating comfort food has grown into a mindful kitchen community.
+      </p>
+    </div>
+
+    <!-- Image -->
+    <div class="rounded-3xl overflow-hidden aspect-[16/9] shadow-md border border-stone-200">
+      <img
+        src="https://images.unsplash.com/photo-1517433670267-08bbd4be890f?q=80&w=1200&auto=format&fit=crop"
+        alt="Fresh bread and warm teapot on a wooden table"
+        class="w-full h-full object-cover"
+      />
+    </div>
+
+    <!-- Body Story (E-E-A-T signals for Google Search & AdSense) -->
+    <div class="prose prose-stone max-w-none prose-headings:font-serif leading-relaxed text-stone-700 space-y-6">
+      <h2>Why "Tea & Toast"?</h2>
+      <p>
+        In an era of rushed mornings, grab-and-go energy bars, and distracted eating, breakfast has often been reduced to a chore. We believe the exact opposite: <strong>the first 30 minutes of your day set the tone for your entire life.</strong>
+      </p>
+      <p>
+        There is something intrinsically grounding about the rhythmic sound of slicing into a naturally leavened sourdough loaf, waiting for the toaster chime, hearing the kettle whistle, and watching loose tea leaves slowly unfurl in hot water. 
+      </p>
+
+      <h2>Our Culinary Philosophy</h2>
+      <p>
+        Every single recipe shared on <strong>Tea & Toast</strong> follows four cardinal principles:
+      </p>
+      <ul class="list-disc pl-5 space-y-2">
+        <li>
+          <strong>Flavor Balance & Contrast:</strong> We pair crunch with creaminess (crisp toast with whipped ricotta or avocado) and warmth with bright acidity (rich butter balanced with citrus bergamot tea).
+        </li>
+        <li>
+          <strong>No-Fuss, Everyday Luxury:</strong> Gourmet does not mean tedious. Most of our toast and spread recipes take fewer than 10 minutes to assemble using accessible, high-quality ingredients.
+        </li>
+        <li>
+          <strong>Mindful Tea Pairing:</strong> Just as fine dining elevates wine pairing, tea possesses intricate flavor profiles—malty, floral, grassy, smoky, and sweet. We test and recommend the exact tea that elevates each dish.
+        </li>
+        <li>
+          <strong>Thoroughly Tested Steps:</strong> We document exact times, temperatures, and troubleshooting tips so you never end up with soggy bread or over-steeped, bitter tea.
+        </li>
+      </ul>
+
+      <h2>Connect With Us</h2>
+      <p>
+        We love seeing your breakfast setups and afternoon tea moments. Connect with us on social media:
+      </p>
+      <div class="not-prose flex flex-wrap gap-4 pt-2">
+        <a
+          href="https://www.instagram.com/teaandtoastblog/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-800 text-white rounded-xl text-sm font-semibold hover:bg-amber-900 transition shadow-sm"
+        >
+          <span>Instagram @teaandtoastblog</span>
+        </a>
+        <a
+          href="/contact"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-300 text-stone-800 rounded-xl text-sm font-semibold hover:bg-stone-50 transition shadow-sm"
+        >
+          <span>Contact Our Team</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

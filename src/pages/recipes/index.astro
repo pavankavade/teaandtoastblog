@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecipeCard from '../../components/RecipeCard.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { getCollection } from 'astro:content';
+
+const allRecipes = await getCollection('recipes');
+// Sort by pubDate descending
+allRecipes.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const categories = [
+  'All',
+  'Toasts & Spreads',
+  'Teas & Sips',
+  'Brunch & Bakes',
+  'Quick Bites',
+];
+---
+
+<BaseLayout
+  title="All Recipes & Pairings | Tea & Toast"
+  description="Explore our library of artisan sourdough toasts, whipped spreads, loose-leaf tea pairings, and comforting weekend bakes."
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+    <!-- Header -->
+    <div class="text-center max-w-2xl mx-auto space-y-3">
+      <span class="text-xs uppercase tracking-widest font-bold text-amber-800 bg-amber-100/70 px-3 py-1 rounded-full">
+        The Recipe Vault
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-serif font-bold text-stone-900">
+        Every Slice & Sip
+      </h1>
+      <p class="text-stone-600 text-sm sm:text-base leading-relaxed">
+        From five-minute breakfast toasts to afternoon high-tea pairings, find tested recipes with exact steps and pairing recommendations.
+      </p>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
+      {categories.map((cat) => (
+        <button
+          type="button"
+          class={`filter-tab px-4 py-2 rounded-full text-xs font-semibold transition shadow-sm ${
+            cat === 'All'
+              ? 'bg-amber-800 text-white active-tab'
+              : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50'
+          }`}
+          data-category={cat}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+
+    <!-- Leaderboard Ad Slot -->
+    <AdSlot slotType="leaderboard" />
+
+    <!-- Recipes Grid -->
+    <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" id="recipes-grid">
+      {allRecipes.map((recipe) => (
+        <div class="recipe-item" data-category={recipe.data.category}>
+          <RecipeCard
+            title={recipe.data.title}
+            slug={recipe.id}
+            description={recipe.data.description}
+            heroImage={recipe.data.heroImage}
+            totalTime={recipe.data.totalTime}
+            category={recipe.data.category}
+            difficulty={recipe.data.difficulty}
+            teaPairingName={recipe.data.teaPairing?.teaName}
+            calories={recipe.data.calories}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  const filterTabs = document.querySelectorAll('.filter-tab');
+  const recipeItems = document.querySelectorAll('.recipe-item');
+
+  // Check URL query param for default category
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedCat = urlParams.get('category');
+
+  function applyFilter(category) {
+    filterTabs.forEach((tab) => {
+      if (tab.getAttribute('data-category') === category) {
+        tab.classList.add('bg-amber-800', 'text-white', 'active-tab');
+        tab.classList.remove('bg-white', 'text-stone-700');
+      } else {
+        tab.classList.remove('bg-amber-800', 'text-white', 'active-tab');
+        tab.classList.add('bg-white', 'text-stone-700');
+      }
+    });
+
+    recipeItems.forEach((item) => {
+      const itemCat = item.getAttribute('data-category');
+      if (category === 'All' || itemCat === category) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  if (requestedCat) {
+    applyFilter(requestedCat);
+  }
+
+  filterTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const cat = tab.getAttribute('data-category');
+      applyFilter(cat);
+    });
+  });
+</script>

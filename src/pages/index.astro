@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RecipeCard from '../components/RecipeCard.astro';
+import AdSlot from '../components/AdSlot.astro';
+import TeaToastPairingWidget from '../components/TeaToastPairingWidget.astro';
+import { getCollection } from 'astro:content';
+
+const allRecipes = await getCollection('recipes');
+const featuredRecipes = allRecipes.filter((r) => r.data.featured);
+const latestRecipes = allRecipes.slice(0, 6);
+---
+
+<BaseLayout
+  title="Tea & Toast | Artisanal Breads, Cozy Recipes & Teatime Rituals"
+  description="Elevate your mornings with golden artisanal sourdough toasts, whipped spreads, comforting bakes, and the mindful art of tea brewing."
+>
+  <!-- HERO SECTION -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-[#F7F2E9] via-[#FAF8F5] to-[#FAF8F5] pt-12 pb-20 border-b border-stone-200/60">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <!-- Text Column -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-900 text-xs font-semibold tracking-wide">
+            <span>✨ As seen on Instagram</span>
+            <a href="https://www.instagram.com/teaandtoastblog/" target="_blank" class="underline hover:text-amber-700">@teaandtoastblog</a>
+          </div>
+
+          <h1 class="font-serif text-4xl sm:text-6xl font-bold text-stone-900 leading-[1.1] tracking-tight">
+            Elevating your morning slice and mindful sip.
+          </h1>
+
+          <p class="text-base sm:text-lg text-stone-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            Welcome to <strong>Tea & Toast</strong>. We transform simple ingredients—crusty sourdough, cultured butter, whipped ricotta, and aromatic whole-leaf teas—into daily rituals worth slowing down for.
+          </p>
+
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+            <a
+              href="/recipes"
+              class="px-6 py-3.5 bg-amber-800 hover:bg-amber-900 text-amber-50 rounded-xl font-semibold text-sm shadow-md hover:shadow-lg transition duration-200"
+            >
+              Browse All Recipes
+            </a>
+            <a
+              href="#tea-toast-pairing"
+              class="px-6 py-3.5 bg-white border border-stone-300 hover:bg-stone-50 text-stone-800 rounded-xl font-semibold text-sm shadow-sm transition duration-200"
+            >
+              Try Pairing Tool 🫖
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Image Showcase -->
+        <div class="lg:col-span-5 relative">
+          <div class="relative mx-auto max-w-sm lg:max-w-none">
+            <div class="absolute -top-4 -left-4 w-72 h-72 bg-amber-200/50 rounded-full blur-3xl -z-10"></div>
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/5]">
+              <img
+                src="https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=1000&auto=format&fit=crop"
+                alt="Golden avocado sourdough toast with poached egg"
+                class="w-full h-full object-cover"
+                loading="eager"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div class="absolute bottom-6 left-6 right-6 text-white">
+                <span class="text-[11px] uppercase font-bold tracking-wider text-amber-300">Featured Recipe</span>
+                <h3 class="font-serif text-xl font-bold mt-1">Avocado Toast with Chili Crisp & Poached Egg</h3>
+                <p class="text-xs text-stone-200 mt-1">Paired with Bergamot Earl Grey</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD AD -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <AdSlot slotType="leaderboard" />
+  </div>
+
+  <!-- CATEGORY PILLARS -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <a
+        href="/recipes?category=Toasts+%26+Spreads"
+        class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm hover:border-amber-400 hover:shadow-md transition text-center group"
+      >
+        <span class="text-3xl block mb-2 group-hover:scale-110 transition duration-200">🍞</span>
+        <h3 class="font-serif text-base font-bold text-stone-900 group-hover:text-amber-800">Toasts & Spreads</h3>
+        <p class="text-xs text-stone-500 mt-1">Sweet, savory & whipped</p>
+      </a>
+
+      <a
+        href="/recipes?category=Teas+%26+Sips"
+        class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm hover:border-amber-400 hover:shadow-md transition text-center group"
+      >
+        <span class="text-3xl block mb-2 group-hover:scale-110 transition duration-200">🍵</span>
+        <h3 class="font-serif text-base font-bold text-stone-900 group-hover:text-amber-800">Teas & Sips</h3>
+        <p class="text-xs text-stone-500 mt-1">Loose leaf, lattes & brews</p>
+      </a>
+
+      <a
+        href="/recipes?category=Brunch+%26+Bakes"
+        class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm hover:border-amber-400 hover:shadow-md transition text-center group"
+      >
+        <span class="text-3xl block mb-2 group-hover:scale-110 transition duration-200">🥐</span>
+        <h3 class="font-serif text-base font-bold text-stone-900 group-hover:text-amber-800">Brunch & Bakes</h3>
+        <p class="text-xs text-stone-500 mt-1">Scones, brioche & mornings</p>
+      </a>
+
+      <a
+        href="/recipes?category=Quick+Bites"
+        class="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm hover:border-amber-400 hover:shadow-md transition text-center group"
+      >
+        <span class="text-3xl block mb-2 group-hover:scale-110 transition duration-200">⚡</span>
+        <h3 class="font-serif text-base font-bold text-stone-900 group-hover:text-amber-800">Quick Bites</h3>
+        <p class="text-xs text-stone-500 mt-1">5-minute comfort snacks</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- LATEST RECIPES -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex items-end justify-between mb-8 border-b border-stone-200 pb-4">
+      <div>
+        <span class="text-xs uppercase tracking-widest font-bold text-amber-800">Fresh from the Toaster</span>
+        <h2 class="text-2xl sm:text-4xl font-serif font-bold text-stone-900 mt-1">Latest Recipes & Brews</h2>
+      </div>
+      <a href="/recipes" class="text-xs sm:text-sm font-semibold text-amber-800 hover:text-amber-900 transition flex items-center gap-1">
+        <span>View All</span>
+        <span>→</span>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      {latestRecipes.map((recipe) => (
+        <RecipeCard
+          title={recipe.data.title}
+          slug={recipe.id}
+          description={recipe.data.description}
+          heroImage={recipe.data.heroImage}
+          totalTime={recipe.data.totalTime}
+          category={recipe.data.category}
+          difficulty={recipe.data.difficulty}
+          teaPairingName={recipe.data.teaPairing?.teaName}
+          calories={recipe.data.calories}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- INTERACTIVE TEA & TOAST PAIRING TOOL -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <TeaToastPairingWidget />
+  </div>
+
+  <!-- MID-PAGE AD -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <AdSlot slotType="in-article" />
+  </div>
+
+  <!-- INSTAGRAM & COMMUNITY SECTION -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="bg-gradient-to-r from-amber-900 to-stone-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="space-y-3 max-w-xl text-center md:text-left">
+        <span class="text-xs uppercase tracking-widest font-bold text-amber-300">Join the Morning Ritual</span>
+        <h2 class="font-serif text-3xl sm:text-4xl font-bold">Follow @teaandtoastblog</h2>
+        <p class="text-stone-300 text-sm leading-relaxed">
+          Watch satisfying crisp toast ASMR, new recipe drop reels, and teatime tips. Tag us in your creations to be featured!
+        </p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <a
+          href="https://www.instagram.com/teaandtoastblog/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-6 py-3 bg-white text-stone-900 hover:bg-stone-100 rounded-xl font-bold text-sm shadow transition text-center"
+        >
+          Follow on Instagram
+        </a>
+        <a
+          href="/links"
+          class="px-6 py-3 bg-amber-800/80 hover:bg-amber-800 text-white border border-amber-600/60 rounded-xl font-bold text-sm shadow transition text-center"
+        >
+          Instagram Bio Links Hub
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

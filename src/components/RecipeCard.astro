@@ -1,0 +1,79 @@
+---
+interface Props {
+  title: string;
+  slug: string;
+  description: string;
+  heroImage: string;
+  totalTime: string;
+  category: string;
+  difficulty?: string;
+  teaPairingName?: string;
+  calories?: number;
+}
+
+const {
+  title,
+  slug,
+  description,
+  heroImage,
+  totalTime,
+  category,
+  difficulty = 'Easy',
+  teaPairingName,
+  calories,
+} = Astro.props;
+---
+
+<article class="bg-white rounded-2xl border border-stone-200/90 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
+  <!-- Image Container -->
+  <a href={`/recipes/${slug}`} class="relative block overflow-hidden aspect-[4/3] bg-stone-100">
+    <img
+      src={heroImage}
+      alt={title}
+      loading="lazy"
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+    />
+    <span class="absolute top-3 left-3 bg-stone-900/80 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">
+      {category}
+    </span>
+    {teaPairingName && (
+      <span class="absolute bottom-3 right-3 bg-amber-900/85 backdrop-blur-sm text-amber-100 text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+        🍵 Pairs with {teaPairingName}
+      </span>
+    )}
+  </a>
+
+  <!-- Content -->
+  <div class="p-5 flex-1 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 text-xs text-stone-500 mb-2">
+        <span class="flex items-center gap-1">
+          ⏱️ {totalTime}
+        </span>
+        <span>•</span>
+        <span>{difficulty}</span>
+        {calories && (
+          <>
+            <span>•</span>
+            <span>{calories} kcal</span>
+          </>
+        )}
+      </div>
+
+      <h3 class="font-serif text-xl font-bold text-stone-900 group-hover:text-amber-800 transition line-clamp-2 leading-snug">
+        <a href={`/recipes/${slug}`}>
+          {title}
+        </a>
+      </h3>
+
+      <p class="text-stone-600 text-sm mt-2 line-clamp-2 leading-relaxed">
+        {description}
+      </p>
+    </div>
+
+    <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs font-semibold text-amber-800 group-hover:text-amber-900">
+      <span>View Full Recipe</span>
+      <span class="transition-transform group-hover:translate-x-1">→</span>
+    </div>
+  </div>
+</article>
