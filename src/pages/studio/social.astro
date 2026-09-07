@@ -1,0 +1,335 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allRecipes = await getCollection('recipes');
+allRecipes.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const siteUrl = 'https://teaandtoastblog.pages.dev';
+
+// Pre-format social content for all recipes so client-side switching is instantaneous
+const recipesData = allRecipes.map((r) => {
+  const url = `${siteUrl}/recipes/${r.id}`;
+  const title = r.data.title;
+  const desc = r.data.description;
+  const time = r.data.totalTime;
+  const tea = r.data.teaPairing?.teaName || 'Earl Grey Tea';
+
+  // X / Twitter post (concise hook, time, tea pairing, link, hashtags)
+  const shortDesc = desc.length > 85 ? desc.substring(0, 82) + '...' : desc;
+  const xPost = `🍞 ${title}\n\n${shortDesc}\n\n⏱️ ${time} • 🍵 ${tea}\n👉 Recipe: ${url}\n\n#teaandtoast #recipes`;
+
+  // Facebook post (conversational, community-focused, question hook)
+  const fbPost = `Weekend breakfast inspiration! 🍞✨\n\n${title}\n\n${desc}\n\nWhat makes this recipe special:\n• Ready in just ${time}\n• Best paired with a freshly steeped cup of ${tea}\n• Perfect balance of crispy crunch and creamy richness\n\nGet the complete printable recipe card with exact measurements and step-by-step tips below:\n${url}\n\nLet us know in the comments: What is your all-time favorite toast topping? 👇`;
+
+  // Instagram / Reel caption (aesthetic formatting, clean line breaks, high-reach hashtags)
+  const igPost = `Elevate your morning slice. 🍞✨\n\n${title.toUpperCase()}\n\n${desc}\n\n▫️ Prep & cook: ${time}\n▫️ Ideal sip: ${tea}\n▫️ Sourdough crunch level: 10/10\n\nSave this post for your weekend brunch! 📌\nFull measurements, printable recipe card & pairing guide at the link in our bio 👉 @teaandtoastblog\n.\n.\n.\n#teaandtoast #toastrecipes #sourdoughlove #breakfastideas #brunchgoals #toasttuesday #foodreels #morningritual #cozyvibes #teatime`;
+
+  // Pinterest Pin
+  const pinterestTitle = `${title} | Quick & Easy Breakfast`;
+  const pinterestDesc = `${desc} Discover how to make this easy gourmet toast in ${time}, plus the perfect tea pairing. Visit teaandtoastblog.com for step-by-step instructions.`;
+
+  return {
+    id: r.id,
+    title,
+    url,
+    heroImage: r.data.heroImage,
+    xPost,
+    fbPost,
+    igPost,
+    pinterestTitle,
+    pinterestDesc,
+  };
+});
+---
+
+<BaseLayout
+  title="Internal Social Media Studio | Tea & Toast"
+  description="Internal content automation tool to generate tailored, high-engagement posts for X (Twitter), Facebook, and Instagram."
+>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
+    <!-- Header -->
+    <div class="border-b border-stone-200 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs uppercase tracking-widest font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
+            Internal Marketing Tool
+          </span>
+        </div>
+        <h1 class="font-serif text-3xl sm:text-4xl font-bold text-stone-900 mt-2">
+          Social Content Studio
+        </h1>
+        <p class="text-stone-600 text-sm mt-1">
+          Automate, format, and 1-click distribute your recipes across <strong>X (Twitter)</strong>, <strong>Facebook</strong>, and <strong>Instagram</strong>.
+        </p>
+      </div>
+
+      <!-- Quick Social Profile Links -->
+      <div class="flex items-center gap-2 text-xs">
+        <a
+          href="https://x.com/teaandtoastblog"
+          target="_blank"
+          class="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 font-semibold text-stone-700 transition"
+        >
+          Open @teaandtoastblog on X ↗
+        </a>
+        <a
+          href="https://www.facebook.com/profile.php?id=100063631472993"
+          target="_blank"
+          class="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 font-semibold text-stone-700 transition"
+        >
+          Open Facebook Page ↗
+        </a>
+      </div>
+    </div>
+
+    <!-- Recipe Selector -->
+    <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-3">
+      <label for="recipe-selector" class="block text-xs font-bold uppercase tracking-wider text-stone-700">
+        Select Recipe to Distribute
+      </label>
+      <select
+        id="recipe-selector"
+        class="w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+      >
+        {recipesData.map((recipe, idx) => (
+          <option value={recipe.id} selected={idx === 0}>
+            {recipe.title}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <!-- 3-Column Social Cards Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 1. X (TWITTER) CARD -->
+      <div class="bg-white rounded-2xl border border-stone-200 shadow-sm p-5 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">𝕏</span>
+              <span class="font-bold text-sm text-stone-900">X (Twitter) Post</span>
+            </div>
+            <span id="x-char-count" class="text-xs font-mono px-2 py-0.5 rounded bg-stone-100 text-stone-600 font-semibold">
+              280 left
+            </span>
+          </div>
+
+          <textarea
+            id="x-text-area"
+            rows="9"
+            class="w-full mt-3 text-xs sm:text-sm text-stone-800 bg-stone-50/70 border border-stone-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-stone-400 font-sans leading-relaxed resize-none"
+          ></textarea>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-stone-100">
+          <button
+            type="button"
+            id="x-copy-btn"
+            class="w-full py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+          >
+            <span>📋 Copy to Clipboard</span>
+          </button>
+          <a
+            id="x-direct-post-link"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full py-2.5 px-3 rounded-xl bg-black hover:bg-stone-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition"
+          >
+            <span>Share directly on X 𝕏</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 2. FACEBOOK CARD -->
+      <div class="bg-white rounded-2xl border border-stone-200 shadow-sm p-5 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">f</span>
+              <span class="font-bold text-sm text-stone-900">Facebook Page Post</span>
+            </div>
+            <span class="text-xs text-blue-600 font-medium">Community Hook</span>
+          </div>
+
+          <textarea
+            id="fb-text-area"
+            rows="9"
+            class="w-full mt-3 text-xs sm:text-sm text-stone-800 bg-stone-50/70 border border-stone-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 font-sans leading-relaxed resize-none"
+          ></textarea>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-stone-100">
+          <button
+            type="button"
+            id="fb-copy-btn"
+            class="w-full py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+          >
+            <span>📋 Copy to Clipboard</span>
+          </button>
+          <a
+            id="fb-direct-post-link"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition"
+          >
+            <span>Share to Facebook Page</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 3. INSTAGRAM / REELS CARD -->
+      <div class="bg-white rounded-2xl border border-stone-200 shadow-sm p-5 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-full bg-gradient-to-tr from-yellow-500 via-pink-600 to-purple-700 text-white flex items-center justify-center text-xs font-bold">📸</span>
+              <span class="font-bold text-sm text-stone-900">Instagram Reel / Post</span>
+            </div>
+            <span class="text-xs text-pink-600 font-medium">Hashtags Included</span>
+          </div>
+
+          <textarea
+            id="ig-text-area"
+            rows="9"
+            class="w-full mt-3 text-xs sm:text-sm text-stone-800 bg-stone-50/70 border border-stone-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-pink-400 font-sans leading-relaxed resize-none"
+          ></textarea>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-stone-100">
+          <button
+            type="button"
+            id="ig-copy-btn"
+            class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-600 to-amber-700 hover:from-pink-700 hover:to-amber-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition"
+          >
+            <span>📋 Copy Instagram Caption</span>
+          </button>
+          <a
+            href="https://www.instagram.com/teaandtoastblog/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold flex items-center justify-center gap-1 transition text-center"
+          >
+            <span>Open @teaandtoastblog on Instagram ↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Asset Preview Helper Box -->
+    <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6">
+      <img
+        id="preview-hero-img"
+        src=""
+        alt="Recipe Hero Image"
+        class="w-36 h-28 object-cover rounded-xl shadow border border-white"
+      />
+      <div class="flex-1 space-y-1.5 text-center sm:text-left">
+        <span class="text-xs uppercase tracking-wider font-bold text-amber-800">Media Asset Ready for Social</span>
+        <h3 id="preview-title" class="font-serif text-lg font-bold text-stone-900"></h3>
+        <p class="text-xs text-stone-600">
+          Tip: Download this image or use it as the first slide of your Instagram carousel, or attach it directly to your X/Facebook posts for 3x higher clickthrough rates!
+        </p>
+        <div class="pt-1 flex flex-wrap gap-2 justify-center sm:justify-start">
+          <a
+            id="preview-img-link"
+            href=""
+            target="_blank"
+            class="text-xs font-semibold text-amber-800 underline hover:text-amber-950"
+          >
+            Open Full High-Res Image ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline define:vars={{ recipesData }}>
+  const selector = document.getElementById('recipe-selector');
+  const xTextArea = document.getElementById('x-text-area');
+  const fbTextArea = document.getElementById('fb-text-area');
+  const igTextArea = document.getElementById('ig-text-area');
+  const xCharCount = document.getElementById('x-char-count');
+  const xDirectLink = document.getElementById('x-direct-post-link');
+  const fbDirectLink = document.getElementById('fb-direct-post-link');
+  const previewImg = document.getElementById('preview-hero-img');
+  const previewTitle = document.getElementById('preview-title');
+  const previewImgLink = document.getElementById('preview-img-link');
+
+  const xCopyBtn = document.getElementById('x-copy-btn');
+  const fbCopyBtn = document.getElementById('fb-copy-btn');
+  const igCopyBtn = document.getElementById('ig-copy-btn');
+
+  function updateRecipe(recipeId) {
+    const item = recipesData.find((r) => r.id === recipeId) || recipesData[0];
+    if (!item) return;
+
+    xTextArea.value = item.xPost;
+    fbTextArea.value = item.fbPost;
+    igTextArea.value = item.igPost;
+
+    previewTitle.textContent = item.title;
+    previewImg.src = item.heroImage;
+    previewImgLink.href = item.heroImage;
+
+    updateXCounts();
+    updateDirectLinks(item);
+  }
+
+  function updateXCounts() {
+    const len = xTextArea.value.length;
+    const remaining = 280 - len;
+    xCharCount.textContent = `${remaining} chars left`;
+    if (remaining < 0) {
+      xCharCount.classList.remove('bg-stone-100', 'text-stone-600');
+      xCharCount.classList.add('bg-red-100', 'text-red-700');
+    } else {
+      xCharCount.classList.remove('bg-red-100', 'text-red-700');
+      xCharCount.classList.add('bg-stone-100', 'text-stone-600');
+    }
+  }
+
+  function updateDirectLinks(item) {
+    const encodedX = encodeURIComponent(xTextArea.value);
+    xDirectLink.href = `https://twitter.com/intent/tweet?text=${encodedX}`;
+
+    const encodedFb = encodeURIComponent(item.url);
+    fbDirectLink.href = `https://www.facebook.com/sharer/sharer.php?u=${encodedFb}`;
+  }
+
+  selector.addEventListener('change', (e) => {
+    updateRecipe(e.target.value);
+  });
+
+  xTextArea.addEventListener('input', () => {
+    updateXCounts();
+    const currentId = selector.value;
+    const item = recipesData.find((r) => r.id === currentId) || recipesData[0];
+    updateDirectLinks(item);
+  });
+
+  // Copy helpers
+  function copyToClipboard(element, btn) {
+    navigator.clipboard.writeText(element.value).then(() => {
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '✅ Copied!';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    });
+  }
+
+  xCopyBtn.addEventListener('click', () => copyToClipboard(xTextArea, xCopyBtn));
+  fbCopyBtn.addEventListener('click', () => copyToClipboard(fbTextArea, fbCopyBtn));
+  igCopyBtn.addEventListener('click', () => copyToClipboard(igTextArea, igCopyBtn));
+
+  // Initialize with first recipe
+  if (recipesData.length > 0) {
+    updateRecipe(recipesData[0].id);
+  }
+</script>
