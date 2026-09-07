@@ -1,4 +1,6 @@
 ---
+const currentPath = Astro.url.pathname;
+
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'All Recipes', href: '/recipes' },
@@ -7,103 +9,230 @@ const navLinks = [
   { name: 'Pairing Tool', href: '/#tea-toast-pairing' },
   { name: 'About', href: '/about' },
 ];
+
+function isActive(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  if (href.startsWith('/#')) return false;
+  const basePath = href.split('?')[0];
+  return currentPath === basePath || (basePath !== '/' && currentPath.startsWith(basePath));
+}
 ---
 
-<header class="sticky top-0 z-40 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-stone-200/80 transition-all">
-  <!-- Top Announcement Bar -->
-  <div class="bg-amber-900 text-amber-50 text-xs py-1.5 px-4 text-center font-medium tracking-wide flex justify-center items-center gap-2">
-    <span>✨ Welcome to the revived <strong>Tea & Toast</strong>! Follow us on</span>
-    <a href="https://www.instagram.com/teaandtoastblog/" target="_blank" rel="noopener noreferrer" class="underline hover:text-amber-200 font-semibold inline-flex items-center gap-1">
-      Instagram @teaandtoastblog →
-    </a>
+<header class="sticky top-0 z-50 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-stone-200/80 transition-all duration-200 shadow-sm">
+  <!-- Top Announcement Bar (Dismissible & Crisp) -->
+  <div id="top-announcement-bar" class="bg-amber-950 text-amber-100 text-xs py-2 px-4 transition-all duration-300">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="w-6 hidden sm:block"></div> <!-- Spacer for symmetry -->
+      <div class="flex-1 text-center font-medium tracking-wide flex items-center justify-center gap-2">
+        <span class="inline-block animate-pulse">✨</span>
+        <span>Cozy breakfast toasts, comforting bakes & mindful tea pairings • Follow us on</span>
+        <a
+          href="https://www.instagram.com/teaandtoastblog/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline font-bold text-amber-200 hover:text-white inline-flex items-center gap-0.5 transition"
+        >
+          @teaandtoastblog
+          <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </a>
+      </div>
+      <button
+        id="dismiss-bar-btn"
+        type="button"
+        aria-label="Dismiss banner"
+        class="text-amber-300/80 hover:text-white p-1 rounded transition text-xs"
+      >
+        ✕
+      </button>
+    </div>
   </div>
 
+  <!-- Main Navbar -->
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-20">
-      <!-- Logo -->
-      <a href="/" class="flex items-center gap-3 group">
-        <span class="text-3xl filter transition group-hover:scale-110 duration-200">🍞🍵</span>
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-800 rounded-xl py-1">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 border border-amber-200/80 flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform duration-200">
+          🍞
+        </div>
         <div class="flex flex-col">
-          <span class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 group-hover:text-amber-800 transition">
+          <span class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 group-hover:text-amber-900 transition-colors">
             Tea & Toast
           </span>
-          <span class="text-[10px] uppercase tracking-widest font-semibold text-stone-500 -mt-1">
+          <span class="text-[10px] uppercase tracking-widest font-bold text-amber-800/80 -mt-1">
             Artisanal Breads & Teatime Rituals
           </span>
         </div>
       </a>
 
-      <!-- Desktop Nav -->
-      <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
-        {navLinks.map((link) => (
-          <a
-            href={link.href}
-            class="px-3 py-2 rounded-lg text-sm font-medium text-stone-700 hover:text-amber-900 hover:bg-stone-100/80 transition"
-          >
-            {link.name}
-          </a>
-        ))}
+      <!-- Desktop Nav Links -->
+      <nav class="hidden lg:flex items-center space-x-1" aria-label="Main Navigation">
+        {navLinks.map((link) => {
+          const active = isActive(link.href);
+          return (
+            <a
+              href={link.href}
+              class={`px-3.5 py-2 rounded-full text-sm font-medium transition duration-150 ${
+                active
+                  ? 'bg-amber-900 text-amber-50 shadow-sm font-semibold'
+                  : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100/90'
+              }`}
+            >
+              {link.name}
+            </a>
+          );
+        })}
       </nav>
 
-      <!-- Right Actions: Social Icons -->
-      <div class="hidden sm:flex items-center space-x-3">
+      <!-- Right Action Group -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Quick Search Link -->
+        <a
+          href="/recipes"
+          aria-label="Search recipes"
+          class="p-2.5 text-stone-600 hover:text-amber-900 hover:bg-stone-100/80 rounded-full transition"
+          title="Browse Recipes"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </a>
+
+        <!-- Instagram Direct Button -->
         <a
           href="https://www.instagram.com/teaandtoastblog/"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Instagram @teaandtoastblog"
-          class="p-2 text-stone-600 hover:text-amber-800 hover:bg-amber-50 rounded-full transition"
+          class="hidden sm:flex items-center gap-1.5 p-2 text-stone-600 hover:text-amber-900 hover:bg-amber-50/80 rounded-full transition"
+          title="Follow on Instagram"
         >
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-amber-900" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
           </svg>
         </a>
+
+        <!-- Instagram Bio Hub Pill -->
         <a
           href="/links"
-          class="inline-flex items-center text-xs font-semibold px-3 py-1.5 bg-amber-800 text-white rounded-full hover:bg-amber-900 shadow-sm transition"
+          class="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 bg-gradient-to-r from-amber-800 to-amber-900 hover:from-amber-900 hover:to-amber-950 text-white rounded-full shadow-sm hover:shadow transition"
         >
-          Instagram Hub
+          <span>📱 Bio Hub</span>
         </a>
-      </div>
 
-      <!-- Mobile Menu Button -->
-      <button
-        id="mobile-menu-toggle"
-        class="md:hidden p-2 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-100"
-        aria-label="Toggle menu"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-        </svg>
-      </button>
+        <!-- Mobile Hamburger Toggle -->
+        <button
+          id="mobile-menu-toggle"
+          type="button"
+          class="lg:hidden p-2.5 rounded-xl text-stone-700 hover:text-stone-900 hover:bg-stone-100 transition focus:outline-none"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          aria-label="Open mobile menu"
+        >
+          <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Mobile Dropdown -->
-  <div id="mobile-menu" class="hidden md:hidden border-b border-stone-200 bg-[#FAF8F5] px-4 pt-2 pb-4 space-y-1">
-    {navLinks.map((link) => (
+  <!-- Mobile Slide-Down Menu -->
+  <div
+    id="mobile-menu"
+    class="hidden lg:hidden border-b border-stone-200 bg-[#FAF8F5]/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-2 shadow-lg transition-all duration-200"
+  >
+    <div class="space-y-1">
+      {navLinks.map((link) => {
+        const active = isActive(link.href);
+        return (
+          <a
+            href={link.href}
+            class={`flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition ${
+              active
+                ? 'bg-amber-900 text-amber-50 font-bold'
+                : 'text-stone-800 hover:bg-stone-100 hover:text-amber-900'
+            }`}
+          >
+            <span>{link.name}</span>
+            {active && <span class="text-xs bg-amber-800 text-amber-100 px-2 py-0.5 rounded-full">Active</span>}
+          </a>
+        );
+      })}
+    </div>
+
+    <!-- Mobile Instagram Banner Card -->
+    <div class="pt-3 mt-3 border-t border-stone-200/80">
       <a
-        href={link.href}
-        class="block px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-100 hover:text-amber-900"
+        href="/links"
+        class="flex items-center justify-between p-3.5 bg-gradient-to-r from-amber-100/90 to-orange-100/70 border border-amber-200 rounded-2xl text-amber-950 font-semibold text-sm shadow-sm"
       >
-        {link.name}
+        <span class="flex items-center gap-2">
+          <span>📱</span>
+          <span>Instagram Bio Hub & Links</span>
+        </span>
+        <span class="text-xs font-bold text-amber-800 bg-white/80 px-2 py-1 rounded-lg">Open →</span>
       </a>
-    ))}
-    <a
-      href="/links"
-      class="block px-3 py-2 rounded-md text-base font-medium text-amber-900 bg-amber-50"
-    >
-      📱 Instagram Bio Links
-    </a>
+
+      <div class="mt-3 flex items-center justify-center gap-4 text-xs text-stone-500">
+        <a
+          href="https://www.instagram.com/teaandtoastblog/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-amber-900 font-semibold flex items-center gap-1.5"
+        >
+          <svg class="w-4 h-4 text-amber-900" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+          <span>Follow @teaandtoastblog</span>
+        </a>
+      </div>
+    </div>
   </div>
 </header>
 
 <script is:inline>
+  // Mobile Menu Toggle with Animated Icon
   const toggleBtn = document.getElementById('mobile-menu-toggle');
   const mobileMenu = document.getElementById('mobile-menu');
+  const hamburgerIcon = document.getElementById('hamburger-icon');
+  const closeIcon = document.getElementById('close-icon');
+
   if (toggleBtn && mobileMenu) {
     toggleBtn.addEventListener('click', () => {
+      const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+      toggleBtn.setAttribute('aria-expanded', (!isExpanded).toString());
       mobileMenu.classList.toggle('hidden');
+      if (hamburgerIcon && closeIcon) {
+        hamburgerIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+      }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!toggleBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+        mobileMenu.classList.add('hidden');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        if (hamburgerIcon && closeIcon) {
+          hamburgerIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+        }
+      }
+    });
+  }
+
+  // Dismiss Top Bar
+  const dismissBtn = document.getElementById('dismiss-bar-btn');
+  const topBar = document.getElementById('top-announcement-bar');
+  if (dismissBtn && topBar) {
+    dismissBtn.addEventListener('click', () => {
+      topBar.style.display = 'none';
     });
   }
 </script>
